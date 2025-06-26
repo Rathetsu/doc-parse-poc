@@ -9,134 +9,129 @@
 
 .prompt-textarea {
 	width: 100%;
-	min-height: 120px;
+	min-height: 140px;
 	resize: vertical;
 	font-size: 1rem;
-	line-height: 1.5;
-	padding: 1rem;
+	line-height: 1.6;
+	padding: var(--space-lg);
 	border: 2px solid var(--border-color);
-	border-radius: var(--border-radius);
+	border-radius: var(--border-radius-lg);
 	transition: var(--transition);
+	background: var(--bg-white);
+	color: var(--text-primary);
+	font-family: inherit;
+	box-shadow: var(--shadow-sm);
+}
+
+.prompt-textarea::placeholder {
+	color: var(--text-light);
+	font-style: italic;
 }
 
 .prompt-textarea:focus {
 	border-color: var(--primary-color);
-	box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+	box-shadow: var(--shadow-glow);
+	outline: none;
+	background: var(--bg-white);
 }
 
 .prompt-textarea:disabled {
-	background: var(--bg-gray-100);
+	background: var(--bg-secondary);
 	color: var(--text-muted);
 	cursor: not-allowed;
+	opacity: 0.7;
 }
 
 .input-footer {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-top: 0.5rem;
-	gap: 1rem;
+	margin-top: var(--space-md);
+	gap: var(--space-md);
 }
 
 .character-count {
-	font-size: 0.875rem;
+	font-size: 0.8rem;
 	color: var(--text-muted);
+	font-weight: 500;
+	padding: var(--space-xs) var(--space-sm);
+	background: var(--bg-secondary);
+	border-radius: var(--border-radius-sm);
 }
 
-.suggestions-toggle {
-	background: var(--bg-gray-100);
-	color: var(--text-secondary);
-	border: 1px solid var(--border-color);
-	font-size: 0.875rem;
-	padding: 0.5rem 1rem;
+.analyze-button {
+	background: var(--gradient-primary);
+	color: var(--text-inverse);
+	font-size: 0.9rem;
+	padding: var(--space-sm) var(--space-lg);
+	border-radius: var(--border-radius);
+	font-weight: 600;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	box-shadow: var(--shadow-md);
+	transition: var(--transition);
+	position: relative;
+	overflow: hidden;
 }
 
-.suggestions-toggle:hover:not(:disabled) {
-	background: var(--bg-gray-200);
-}
-
-.suggestions-panel {
+.analyze-button::after {
+	content: '';
 	position: absolute;
-	top: 100%;
+	top: 0;
 	left: 0;
 	right: 0;
-	background: var(--bg-white);
-	border: 1px solid var(--border-color);
-	border-radius: var(--border-radius);
-	box-shadow: var(--shadow-lg);
-	z-index: 100;
-	max-height: 400px;
-	overflow-y: auto;
-	margin-top: 0.5rem;
+	bottom: 0;
+	background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%);
+	transform: translateX(-100%);
+	transition: transform 0.5s ease;
 }
 
-.suggestions-panel h4 {
-	padding: 1rem 1rem 0.5rem 1rem;
-	margin: 0;
-	font-size: 1rem;
-	color: var(--text-primary);
-	border-bottom: 1px solid var(--border-color);
+.analyze-button:hover:not(:disabled)::after {
+	transform: translateX(100%);
 }
 
-.suggestions-list {
-	padding: 0.5rem;
-}
-
-.suggestion-item {
-	display: block;
-	width: 100%;
-	text-align: left;
-	padding: 0.75rem 1rem;
-	background: transparent;
-	border: none;
-	border-radius: var(--border-radius);
-	font-size: 0.875rem;
-	line-height: 1.4;
-	color: var(--text-secondary);
-	margin-bottom: 0.25rem;
-	transition: var(--transition);
-}
-
-.suggestion-item:hover:not(:disabled) {
-	background: var(--bg-gray-50);
-	color: var(--text-primary);
-	transform: none;
-	box-shadow: none;
-}
-
-.suggestion-item:last-child {
-	margin-bottom: 0;
-}
-
-.close-suggestions {
-	width: 100%;
-	background: var(--bg-gray-50);
+.analyze-button:disabled {
+	background: var(--bg-secondary);
 	color: var(--text-muted);
-	border: none;
-	border-top: 1px solid var(--border-color);
-	padding: 0.75rem;
-	font-size: 0.875rem;
-	border-radius: 0 0 var(--border-radius) var(--border-radius);
+	box-shadow: var(--shadow-sm);
+	border-color: var(--border-color);
 }
 
-.close-suggestions:hover {
-	background: var(--bg-gray-100);
-	transform: none;
-	box-shadow: none;
+.analyze-button:disabled::after {
+	display: none;
 }
 
 @media (max-width: 768px) {
+	.prompt-textarea {
+		min-height: 120px;
+		padding: var(--space-md);
+		font-size: 0.9rem;
+	}
+
 	.input-footer {
 		flex-direction: column;
-		align-items: flex-start;
-		gap: 0.5rem;
+		align-items: stretch;
+		gap: var(--space-sm);
 	}
 
-	.suggestions-toggle {
-		align-self: flex-end;
+	.character-count {
+		font-size: 0.75rem;
+		align-self: flex-start;
 	}
 
-	.suggestions-panel {
-		max-height: 300px;
+	.analyze-button {
+		width: 100%;
+		font-size: 0.85rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.prompt-textarea {
+		min-height: 100px;
+		padding: var(--space-sm);
+	}
+
+	.analyze-button {
+		font-size: 0.8rem;
+		padding: var(--space-xs) var(--space-md);
 	}
 }

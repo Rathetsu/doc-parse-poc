@@ -1,4 +1,4 @@
-# 📄 Document Parser with AI Analysis
+# 📄 POC for using Docling to parse documents to structured output for AI analysis
 
 A proof-of-concept application that combines **Docling**'s powerful document parsing capabilities with **OpenAI's API** to enable intelligent analysis and interaction with your documents.
 
@@ -196,8 +196,6 @@ gunicorn --bind 0.0.0.0:5000 wsgi:application
 ```bash
 # Build for production
 npm run build
-
-# Serve with nginx or any static file server
 ```
 
 ## 🧪 API Reference

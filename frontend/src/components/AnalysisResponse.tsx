@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { AnalysisResult } from "../types/api";
-import { formatFileSize } from "../utils/fileUtils";
 import "./AnalysisResponse.css";
 
 interface AnalysisResponseProps {
@@ -8,158 +7,137 @@ interface AnalysisResponseProps {
 }
 
 const AnalysisResponse: React.FC<AnalysisResponseProps> = ({ result }) => {
-	const [showMetadata, setShowMetadata] = useState(false);
+	const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
-	const copyToClipboard = async () => {
+	const handleCopy = async () => {
 		try {
 			await navigator.clipboard.writeText(result.analysis);
-			// You could add a toast notification here
-			alert("Analysis copied to clipboard!");
+			setCopySuccess(true);
+			setTimeout(() => setCopySuccess(false), 2000);
 		} catch (err) {
-			console.error("Failed to copy to clipboard:", err);
+			console.error("Failed to copy:", err);
 		}
 	};
 
-	const formatResponse = (text: string) => {
-		// Simple formatting for better readability
-		return text.split("\n").map((line, index) => {
-			// Handle bullet points
-			if (line.trim().startsWith("- ") || line.trim().startsWith("• ")) {
-				return (
-					<li key={index} className="bullet-point">
-						{line.trim().substring(2)}
-					</li>
-				);
-			}
-
-			// Handle numbered lists
-			if (/^\d+\.\s/.test(line.trim())) {
-				return (
-					<li key={index} className="numbered-point">
-						{line
-							.trim()
-							.substring(line.indexOf(".") + 1)
-							.trim()}
-					</li>
-				);
-			}
-
-			// Handle headers (lines that end with :)
-			if (line.trim().endsWith(":") && line.trim().length > 1) {
-				return (
-					<h4 key={index} className="response-header">
-						{line.trim()}
-					</h4>
-				);
-			}
-
-			// Regular paragraphs
-			if (line.trim()) {
-				return (
-					<p key={index} className="response-paragraph">
-						{line.trim()}
-					</p>
-				);
-			}
-
-			return <br key={index} />;
-		});
+	const formatFileSize = (bytes: number): string => {
+		const sizes = ["Bytes", "KB", "MB", "GB"];
+		if (bytes === 0) return "0 Byte";
+		const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)).toString());
+		return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
 	};
 
 	return (
 		<div className="analysis-response">
-			<div className="response-header-section">
-				<h2>🤖 AI Analysis</h2>
-				<div className="response-actions">
-					<button onClick={copyToClipboard} className="copy-button">
-						📋 Copy
-					</button>
+			{/* LLM Analysis Section */}
+			<div className="analysis-section">
+				<div className="analysis-header">
+					<h3 className="analysis-title">🤖 AI Analysis</h3>
 					<button
-						onClick={() => setShowMetadata(!showMetadata)}
-						className="metadata-toggle"
+						onClick={handleCopy}
+						className="copy-analysis-button"
+						title="Copy analysis to clipboard"
 					>
-						📊 {showMetadata ? "Hide" : "Show"} Details
+						{copySuccess ? "✅ Copied!" : "📋 Copy"}
 					</button>
+				</div>
+				<div className="analysis-content">
+					<div className="analysis-text">
+						{result.analysis.split("\n").map((paragraph, index) => (
+							<p key={index}>{paragraph}</p>
+						))}
+					</div>
 				</div>
 			</div>
 
-			<div className="response-content">
-				<div className="analysis-text">{formatResponse(result.analysis)}</div>
-			</div>
-
-			{showMetadata && (
-				<div className="metadata-section">
-					<h3>📋 Document Information</h3>
-					<div className="metadata-grid">
-						<div className="metadata-item">
-							<span className="label">File Name:</span>
-							<span className="value">{result.metadata.document.title}</span>
-						</div>
-						<div className="metadata-item">
-							<span className="label">File Type:</span>
-							<span className="value">
-								{result.metadata.document.file_type}
-							</span>
-						</div>
-						<div className="metadata-item">
-							<span className="label">File Size:</span>
-							<span className="value">
-								{formatFileSize(result.metadata.document.file_size)}
-							</span>
-						</div>
-						{result.metadata.document.page_count && (
+			{/* Metadata Section */}
+			<div className="metadata-section">
+				<div className="metadata-header">
+					<h4>📊 Document & Processing Info</h4>
+				</div>
+				<div className="metadata-grid">
+					<div className="metadata-group">
+						<h5>Document Details</h5>
+						<div className="metadata-items">
 							<div className="metadata-item">
-								<span className="label">Pages:</span>
-								<span className="value">
-									{result.metadata.document.page_count}
+								<span className="metadata-label">Title:</span>
+								<span className="metadata-value">
+									{result.metadata.document.title}
 								</span>
 							</div>
-						)}
-						{result.metadata.document.tables_count > 0 && (
 							<div className="metadata-item">
-								<span className="label">Tables:</span>
-								<span className="value">
+								<span className="metadata-label">File Type:</span>
+								<span className="metadata-value">
+									{result.metadata.document.file_type.toUpperCase()}
+								</span>
+							</div>
+							<div className="metadata-item">
+								<span className="metadata-label">File Size:</span>
+								<span className="metadata-value">
+									{formatFileSize(result.metadata.document.file_size)}
+								</span>
+							</div>
+							{result.metadata.document.page_count && (
+								<div className="metadata-item">
+									<span className="metadata-label">Pages:</span>
+									<span className="metadata-value">
+										{result.metadata.document.page_count}
+									</span>
+								</div>
+							)}
+							<div className="metadata-item">
+								<span className="metadata-label">Tables:</span>
+								<span className="metadata-value">
 									{result.metadata.document.tables_count}
 								</span>
 							</div>
-						)}
-						{result.metadata.document.images_count > 0 && (
 							<div className="metadata-item">
-								<span className="label">Images:</span>
-								<span className="value">
+								<span className="metadata-label">Images:</span>
+								<span className="metadata-value">
 									{result.metadata.document.images_count}
 								</span>
 							</div>
-						)}
+							{result.metadata.document.output_format && (
+								<div className="metadata-item">
+									<span className="metadata-label">Parsing Format:</span>
+									<span className="metadata-value parsing-format">
+										{result.metadata.document.output_format.toUpperCase()}
+									</span>
+								</div>
+							)}
+						</div>
 					</div>
 
-					<h3>🔧 Processing Information</h3>
-					<div className="metadata-grid">
-						<div className="metadata-item">
-							<span className="label">AI Model:</span>
-							<span className="value">{result.metadata.model}</span>
-						</div>
-						<div className="metadata-item">
-							<span className="label">Tokens Used:</span>
-							<span className="value">
-								{result.metadata.usage.total_tokens.toLocaleString()}
-							</span>
-						</div>
-						<div className="metadata-item">
-							<span className="label">Prompt Tokens:</span>
-							<span className="value">
-								{result.metadata.usage.prompt_tokens.toLocaleString()}
-							</span>
-						</div>
-						<div className="metadata-item">
-							<span className="label">Completion Tokens:</span>
-							<span className="value">
-								{result.metadata.usage.completion_tokens.toLocaleString()}
-							</span>
+					<div className="metadata-group">
+						<h5>AI Processing Details</h5>
+						<div className="metadata-items">
+							<div className="metadata-item">
+								<span className="metadata-label">Model:</span>
+								<span className="metadata-value">
+									{result.metadata.usage.model_used}
+								</span>
+							</div>
+							<div className="metadata-item">
+								<span className="metadata-label">Prompt Tokens:</span>
+								<span className="metadata-value">
+									{result.metadata.usage.prompt_tokens.toLocaleString()}
+								</span>
+							</div>
+							<div className="metadata-item">
+								<span className="metadata-label">Response Tokens:</span>
+								<span className="metadata-value">
+									{result.metadata.usage.completion_tokens.toLocaleString()}
+								</span>
+							</div>
+							<div className="metadata-item">
+								<span className="metadata-label">Total Tokens:</span>
+								<span className="metadata-value">
+									{result.metadata.usage.total_tokens.toLocaleString()}
+								</span>
+							</div>
 						</div>
 					</div>
 				</div>
-			)}
+			</div>
 		</div>
 	);
 };

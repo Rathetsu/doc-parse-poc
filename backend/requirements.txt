@@ -10,6 +10,7 @@ openai>=1.30.0
 
 # Document processing
 docling>=1.0.0
+docling-core>=2.29.0
 
 # File handling and utilities
 Werkzeug==3.0.1

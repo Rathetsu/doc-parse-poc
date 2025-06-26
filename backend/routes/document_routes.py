@@ -23,6 +23,7 @@ def analyze_document():
     Expected form data:
     - file: Document file
     - prompt: User's analysis prompt
+    - output_format: Optional output format for parsing (default: markdown)
     """
     try:
         # Validate request
@@ -34,9 +35,23 @@ def analyze_document():
 
         file = request.files['file']
         user_prompt = request.form['prompt'].strip()
+        output_format = request.form.get('output_format', 'markdown')
 
         if not user_prompt:
             return jsonify({'success': False, 'error': 'Prompt cannot be empty'}), 400
+
+        # Validate output format
+        supported_formats = document_parser.get_supported_formats()
+        if output_format not in supported_formats:
+            return (
+                jsonify(
+                    {
+                        'success': False,
+                        'error': f'Unsupported output format: {output_format}. Supported formats: {supported_formats}',
+                    }
+                ),
+                400,
+            )
 
         # Save uploaded file
         success, message, file_path = file_service.save_file(file)
@@ -44,9 +59,9 @@ def analyze_document():
             return jsonify({'success': False, 'error': message}), 400
 
         try:
-            # Parse document
-            logger.info(f"Parsing document: {file_path}")
-            parse_result = document_parser.parse_document(file_path)
+            # Parse document with specified format
+            logger.info(f"Parsing document: {file_path} in {output_format} format")
+            parse_result = document_parser.parse_document(file_path, output_format)
 
             if not parse_result['success']:
                 return (
@@ -57,8 +72,16 @@ def analyze_document():
             document_content = parse_result['content']
             document_metadata = parse_result['metadata']
 
+            # For LLM analysis, always use markdown format for better processing
+            if output_format != 'markdown':
+                # Get markdown version for LLM processing
+                markdown_result = document_parser.parse_document(file_path, 'markdown')
+                llm_content = markdown_result['content']
+            else:
+                llm_content = document_content
+
             # Check content length
-            if not openai_service.check_content_length(document_content, user_prompt):
+            if not openai_service.check_content_length(llm_content, user_prompt):
                 return (
                     jsonify(
                         {
@@ -72,7 +95,7 @@ def analyze_document():
             # Analyze with OpenAI
             logger.info("Analyzing document with OpenAI")
             analysis_result = openai_service.analyze_document(
-                document_content=document_content,
+                document_content=llm_content,
                 user_prompt=user_prompt,
                 document_metadata=document_metadata,
             )
@@ -83,10 +106,11 @@ def analyze_document():
                     500,
                 )
 
-            # Prepare response
+            # Prepare response with both parsed content and analysis
             response_data = {
                 'success': True,
                 'analysis': analysis_result['response'],
+                'parsed_content': document_content,
                 'metadata': {
                     'document': document_metadata,
                     'usage': analysis_result['usage'],
@@ -131,6 +155,92 @@ def analyze_document():
         )
 
 
+@document_bp.route('/parse', methods=['POST'])
+def parse_document_only():
+    """
+    Parse a document without AI analysis.
+
+    Expected form data:
+    - file: Document file
+    - output_format: Optional output format (default: markdown)
+    """
+    try:
+        # Validate request
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'error': 'No file provided'}), 400
+
+        file = request.files['file']
+        output_format = request.form.get('output_format', 'markdown')
+
+        # Validate output format
+        supported_formats = document_parser.get_supported_formats()
+        if output_format not in supported_formats:
+            return (
+                jsonify(
+                    {
+                        'success': False,
+                        'error': f'Unsupported output format: {output_format}. Supported formats: {supported_formats}',
+                    }
+                ),
+                400,
+            )
+
+        # Save uploaded file
+        success, message, file_path = file_service.save_file(file)
+        if not success:
+            return jsonify({'success': False, 'error': message}), 400
+
+        try:
+            # Parse document
+            logger.info(f"Parsing document: {file_path} in {output_format} format")
+            parse_result = document_parser.parse_document(file_path, output_format)
+
+            if not parse_result['success']:
+                return (
+                    jsonify({'success': False, 'error': 'Failed to parse document'}),
+                    500,
+                )
+
+            # Prepare response
+            response_data = {
+                'success': True,
+                'content': parse_result['content'],
+                'metadata': parse_result['metadata'],
+            }
+
+            logger.info("Document parsing completed successfully")
+            return jsonify(response_data), 200
+
+        finally:
+            # Clean up uploaded file
+            if file_path and os.path.exists(file_path):
+                file_service.delete_file(file_path)
+                logger.info(f"Cleaned up file: {file_path}")
+
+    except FileServiceError as e:
+        logger.error(f"File service error: {e}")
+        return jsonify({'success': False, 'error': f'File handling error: {e}'}), 400
+
+    except DocumentParsingError as e:
+        logger.error(f"Document parsing error: {e}")
+        return (
+            jsonify({'success': False, 'error': f'Document parsing failed: {e}'}),
+            500,
+        )
+
+    except Exception as e:
+        logger.error(f"Unexpected error in document parsing: {e}")
+        return (
+            jsonify(
+                {
+                    'success': False,
+                    'error': 'An unexpected error occurred. Please try again.',
+                }
+            ),
+            500,
+        )
+
+
 @document_bp.route('/supported-formats', methods=['GET'])
 def get_supported_formats():
     """Get list of supported file formats."""
@@ -151,6 +261,29 @@ def get_supported_formats():
         logger.error(f"Error getting supported formats: {e}")
         return (
             jsonify({'success': False, 'error': 'Failed to get supported formats'}),
+            500,
+        )
+
+
+@document_bp.route('/output-formats', methods=['GET'])
+def get_output_formats():
+    """Get list of supported output formats for parsing."""
+    try:
+        output_formats = document_parser.get_supported_formats()
+        return (
+            jsonify(
+                {
+                    'success': True,
+                    'output_formats': output_formats,
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        logger.error(f"Error getting output formats: {e}")
+        return (
+            jsonify({'success': False, 'error': 'Failed to get output formats'}),
             500,
         )
 

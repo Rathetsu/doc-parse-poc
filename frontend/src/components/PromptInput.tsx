@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import "./PromptInput.css";
 
 interface PromptInputProps {
@@ -6,32 +6,20 @@ interface PromptInputProps {
 	onChange: (value: string) => void;
 	disabled?: boolean;
 	placeholder?: string;
+	onAnalyze?: () => void;
+	canAnalyze?: boolean;
+	isAnalyzing?: boolean;
 }
-
-const SUGGESTED_PROMPTS = [
-	"Summarize the key points and main conclusions",
-	"What are the most important findings?",
-	"Extract all numerical data and statistics",
-	"What questions does this document answer?",
-	"Identify the main themes and topics",
-	"What action items or recommendations are mentioned?",
-	"Explain this document in simple terms",
-	"What are the potential risks or concerns mentioned?",
-];
 
 const PromptInput: React.FC<PromptInputProps> = ({
 	value,
 	onChange,
 	disabled = false,
 	placeholder = "Enter your prompt here...",
+	onAnalyze,
+	canAnalyze = false,
+	isAnalyzing = false,
 }) => {
-	const [showSuggestions, setShowSuggestions] = useState(false);
-
-	const handleSuggestionClick = (suggestion: string) => {
-		onChange(suggestion);
-		setShowSuggestions(false);
-	};
-
 	const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		onChange(e.target.value);
 	};
@@ -50,40 +38,17 @@ const PromptInput: React.FC<PromptInputProps> = ({
 				/>
 				<div className="input-footer">
 					<div className="character-count">{value.length}/1000 characters</div>
-					<button
-						type="button"
-						onClick={() => setShowSuggestions(!showSuggestions)}
-						disabled={disabled}
-						className="suggestions-toggle"
-					>
-						💡 Suggestions
-					</button>
+					{onAnalyze && (
+						<button
+							onClick={onAnalyze}
+							disabled={!canAnalyze}
+							className="analyze-button"
+						>
+							{isAnalyzing ? "Analyzing..." : "🔍 Analyze"}
+						</button>
+					)}
 				</div>
 			</div>
-
-			{showSuggestions && (
-				<div className="suggestions-panel">
-					<h4>💡 Suggested Prompts</h4>
-					<div className="suggestions-list">
-						{SUGGESTED_PROMPTS.map((suggestion, index) => (
-							<button
-								key={index}
-								onClick={() => handleSuggestionClick(suggestion)}
-								disabled={disabled}
-								className="suggestion-item"
-							>
-								{suggestion}
-							</button>
-						))}
-					</div>
-					<button
-						onClick={() => setShowSuggestions(false)}
-						className="close-suggestions"
-					>
-						✕ Close
-					</button>
-				</div>
-			)}
 		</div>
 	);
 };

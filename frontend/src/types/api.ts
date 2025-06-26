@@ -5,6 +5,7 @@ export interface DocumentMetadata {
 	page_count?: number;
 	tables_count: number;
 	images_count: number;
+	output_format?: string;
 }
 
 export interface UsageInfo {
@@ -17,11 +18,18 @@ export interface UsageInfo {
 export interface AnalysisResult {
 	success: boolean;
 	analysis: string;
+	parsed_content?: string;
 	metadata: {
 		document: DocumentMetadata;
 		usage: UsageInfo;
 		model: string;
 	};
+}
+
+export interface ParseResult {
+	success: boolean;
+	content: string;
+	metadata: DocumentMetadata;
 }
 
 export interface SupportedFormatsResponse {
@@ -30,8 +38,15 @@ export interface SupportedFormatsResponse {
 	max_file_size_mb: number;
 }
 
+export interface OutputFormatsResponse {
+	success: boolean;
+	output_formats: string[];
+}
+
 export interface ValidationResponse {
 	success: boolean;
 	message?: string;
 	error?: string;
 }
+
+export type OutputFormat = "markdown" | "json" | "text" | "html";

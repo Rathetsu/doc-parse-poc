@@ -1,0 +1,139 @@
+.parsed-content-display {
+	background: #ffffff;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	overflow: hidden;
+	margin-bottom: 24px;
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.content-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px 20px;
+	background: #f8fafc;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.header-left {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.content-title {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+	color: #1f2937;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.format-badge {
+	background: #3b82f6;
+	color: white;
+	padding: 4px 8px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.header-actions {
+	display: flex;
+	gap: 8px;
+}
+
+.copy-button,
+.collapse-button {
+	padding: 6px 12px;
+	border: 1px solid #d1d5db;
+	background: white;
+	border-radius: 6px;
+	font-size: 12px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.copy-button:hover,
+.collapse-button:hover {
+	background: #f3f4f6;
+	border-color: #9ca3af;
+}
+
+.content-preview {
+	padding: 16px 20px;
+	background: #fafafa;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.preview-text {
+	font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+	font-size: 13px;
+	color: #4b5563;
+	line-height: 1.5;
+	margin-bottom: 12px;
+}
+
+.expand-link {
+	color: #3b82f6;
+	text-decoration: underline;
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 12px;
+}
+
+.content-body {
+	max-height: 500px;
+	overflow-y: auto;
+	padding: 0;
+}
+
+/* Format-specific styling */
+.json-content,
+.text-content,
+.markdown-content,
+
+.json-content {
+	background: #f8f9fa;
+	color: #495057;
+}
+
+.markdown-content {
+	background: #fffef7;
+	color: #374151;
+}
+
+.html-content {
+	margin: 0;
+	padding: 20px;
+	font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+	font-size: 13px;
+	line-height: 1.5;
+	background: #fef3f2;
+	color: #dc2626;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+/* Scrollbar styling */
+.content-body::-webkit-scrollbar {
+	width: 6px;
+}
+
+.content-body::-webkit-scrollbar-track {
+	background: #f1f1f1;
+}
+
+.content-body::-webkit-scrollbar-thumb {
+	background: #c1c1c1;
+	border-radius: 3px;
+}
+
+.content-body::-webkit-scrollbar-thumb:hover {
+	background: #a8a8a8;
+}

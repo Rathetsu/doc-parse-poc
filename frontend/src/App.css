@@ -1,0 +1,50 @@
+.App {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.App-header {
+	background: var(--glass-bg);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border-bottom: 1px solid var(--glass-border);
+	padding: var(--space-xl) var(--space-md);
+	text-align: center;
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	box-shadow: var(--shadow-sm);
+}
+
+.App-header h1 {
+	margin-bottom: var(--space-sm);
+	font-size: clamp(1.75rem, 4vw, 2.5rem);
+	letter-spacing: -0.02em;
+}
+
+.App-header p {
+	color: var(--text-secondary);
+	font-size: 1.125rem;
+	margin: 0;
+	font-weight: 400;
+	opacity: 0.9;
+}
+
+.App-main {
+	flex: 1;
+	padding: var(--space-2xl) var(--space-md);
+	max-width: 1200px;
+	margin: 0 auto;
+	width: 100%;
+}
+
+@media (max-width: 768px) {
+	.App-header {
+		padding: var(--space-lg) var(--space-md);
+	}
+
+	.App-main {
+		padding: var(--space-xl) var(--space-md);
+	}
+}
