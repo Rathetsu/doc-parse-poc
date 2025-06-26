@@ -1,0 +1,86 @@
+{
+	"files.exclude": {
+		"**/.git": false,
+		"**/.svn": false,
+		"**/.hg": false,
+		"**/CVS": false,
+		"**/.DS_Store": false,
+		"**/Thumbs.db": false,
+		"**/.retool_types/**": true,
+		"**/*tsconfig.json": true,
+		".cache": true,
+		"retool.config.json": true
+	},
+
+	// Global editor settings
+	"editor.formatOnSave": true,
+	"editor.formatOnType": true,
+	"editor.formatOnPaste": true,
+	"editor.wordWrap": "on",
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit",
+		"source.addMissingImports": "explicit"
+	},
+
+	// Python-specific settings
+	"[python]": {
+		"editor.insertSpaces": true,
+		"editor.tabSize": 4,
+		"editor.detectIndentation": false,
+		"editor.formatOnSave": true,
+		"editor.formatOnType": true,
+		"editor.formatOnPaste": true,
+		"editor.defaultFormatter": "ms-python.black-formatter"
+	},
+
+	// JavaScript-specific settings
+	"[javascript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+
+	// TypeScript-specific settings
+	"[typescript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+
+	// TypeScript React-specific settings
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+
+	// JavaScript React-specific settings
+	"[javascriptreact]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+
+	// JSON-specific settings
+	"[json]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+
+	// Python extension settings
+	"python.formatting.provider": "none",
+	"python.linting.enabled": true,
+	"python.linting.pylintEnabled": false,
+	"python.linting.flake8Enabled": true,
+	"python.linting.flake8Args": ["--max-line-length=88"],
+
+	// Black formatter settings
+	"black-formatter.args": ["--line-length=88", "--skip-string-normalization"],
+
+	// Import sorting for Python
+	"python.sortImports.args": ["--profile=black"],
+	"isort.args": ["--profile=black"],
+
+	// Prettier settings for JavaScript/TypeScript
+	"prettier.tabWidth": 2,
+	"prettier.useTabs": true,
+	"prettier.semi": true,
+	"prettier.singleQuote": false,
+	"prettier.jsxSingleQuote": false,
+	"prettier.trailingComma": "es5",
+	"prettier.arrowParens": "always",
+
+	// TypeScript settings
+	"typescript.tsdk": "node_modules/typescript/lib"
+}
