@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, Any, Optional
-import openai
+from openai import OpenAI
 from config.settings import Config
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,8 @@ class OpenAIService:
             if not Config.OPENAI_API_KEY:
                 raise OpenAIServiceError("OpenAI API key is not configured")
 
-            self.client = openai.OpenAI(api_key=Config.OPENAI_API_KEY)
+            # Initialize OpenAI client
+            self.client = OpenAI(api_key=Config.OPENAI_API_KEY)
             logger.info("OpenAI client initialized successfully")
 
         except Exception as e:
@@ -70,7 +71,6 @@ class OpenAIService:
                 ],
                 temperature=0.1,  # Lower temperature for more consistent responses
                 max_tokens=4000,  # Reasonable limit for responses
-                timeout=30,  # 30 second timeout
             )
 
             if not response.choices or not response.choices[0].message:
@@ -80,11 +80,13 @@ class OpenAIService:
 
             # Prepare response metadata
             usage_info = {
-                'prompt_tokens': response.usage.prompt_tokens if response.usage else 0,
+                'prompt_tokens': (
+                    response.usage.prompt_tokens if response.usage else 0
+                ),
                 'completion_tokens': (
                     response.usage.completion_tokens if response.usage else 0
                 ),
-                'total_tokens': response.usage.total_tokens if response.usage else 0,
+                'total_tokens': (response.usage.total_tokens if response.usage else 0),
                 'model_used': self.model,
             }
 
@@ -95,16 +97,8 @@ class OpenAIService:
                 'finish_reason': response.choices[0].finish_reason,
             }
 
-        except openai.RateLimitError as e:
-            logger.error(f"OpenAI rate limit exceeded: {e}")
-            raise OpenAIServiceError("Rate limit exceeded. Please try again later.")
-
-        except openai.APIError as e:
-            logger.error(f"OpenAI API error: {e}")
-            raise OpenAIServiceError(f"OpenAI API error: {e}")
-
         except Exception as e:
-            logger.error(f"Unexpected error in document analysis: {e}")
+            logger.error(f"Error in document analysis: {e}")
             raise OpenAIServiceError(f"Failed to analyze document: {e}")
 
     def _create_system_prompt(self, metadata: Optional[Dict[str, Any]] = None) -> str:
@@ -161,10 +155,6 @@ Please analyze the document and respond to the user's request based on the conte
         Returns:
             True if within limits, False otherwise
         """
-        total_chars = len(document_content) + len(user_prompt)
         estimated_tokens = self._estimate_tokens(document_content + user_prompt)
-
-        # Conservative limit to leave room for response
         max_tokens = 12000 if self.model.startswith('gpt-4') else 3000
-
         return estimated_tokens < max_tokens

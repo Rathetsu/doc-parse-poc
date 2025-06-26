@@ -1,11 +1,10 @@
 import React, { useState, useCallback } from "react";
-import { useDropzone } from "react-dropzone";
 import FileUpload from "./FileUpload";
 import PromptInput from "./PromptInput";
 import AnalysisResponse from "./AnalysisResponse";
 import LoadingSpinner from "./LoadingSpinner";
-import { analyzeDocument } from "../services/api";
-import { AnalysisResult, ApiError } from "../types/api";
+import { analyzeDocument, ApiError } from "../services/api";
+import { AnalysisResult } from "../types/api";
 import "./DocumentAnalyzer.css";
 
 const DocumentAnalyzer: React.FC = () => {

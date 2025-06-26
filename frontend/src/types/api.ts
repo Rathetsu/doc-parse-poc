@@ -24,11 +24,6 @@ export interface AnalysisResult {
 	};
 }
 
-export interface ApiError {
-	message: string;
-	status?: number;
-}
-
 export interface SupportedFormatsResponse {
 	success: boolean;
 	formats: string[];

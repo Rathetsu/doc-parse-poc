@@ -1,13 +1,10 @@
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from pathlib import Path
-import tempfile
 import os
 
 try:
     from docling.document_converter import DocumentConverter
-    from docling.datamodel.base_models import InputFormat
-    from docling.datamodel.pipeline_options import PipelineOptions
 except ImportError as e:
     raise ImportError(
         "Docling is not installed. Please install it with: pip install docling"
@@ -37,14 +34,10 @@ class DocumentParser:
         self._initialize_converter()
 
     def _initialize_converter(self) -> None:
-        """Initialize the Docling converter with optimal settings."""
+        """Initialize the Docling converter with default settings."""
         try:
-            # Configure pipeline options for better performance
-            pipeline_options = PipelineOptions()
-            pipeline_options.do_ocr = True  # Enable OCR for images and scanned PDFs
-            pipeline_options.do_table_structure = True  # Extract table structures
-
-            self.converter = DocumentConverter(pipeline_options=pipeline_options)
+            # Initialize with default configuration
+            self.converter = DocumentConverter()
             logger.info("Document converter initialized successfully")
 
         except Exception as e:
@@ -82,7 +75,7 @@ class DocumentParser:
 
             # Extract metadata
             metadata = {
-                'title': getattr(document, 'title', None) or Path(file_path).stem,
+                'title': (getattr(document, 'title', None) or Path(file_path).stem),
                 'page_count': (
                     len(document.pages) if hasattr(document, 'pages') else None
                 ),
@@ -107,22 +100,24 @@ class DocumentParser:
         """Count tables in the document."""
         try:
             count = 0
-            for page in document.pages:
-                if hasattr(page, 'tables'):
-                    count += len(page.tables)
+            if hasattr(document, 'pages'):
+                for page in document.pages:
+                    if hasattr(page, 'tables'):
+                        count += len(page.tables)
             return count
-        except:
+        except Exception:
             return 0
 
     def _count_images(self, document) -> int:
         """Count images in the document."""
         try:
             count = 0
-            for page in document.pages:
-                if hasattr(page, 'images'):
-                    count += len(page.images)
+            if hasattr(document, 'pages'):
+                for page in document.pages:
+                    if hasattr(page, 'images'):
+                        count += len(page.images)
             return count
-        except:
+        except Exception:
             return 0
 
     def is_supported_format(self, file_path: str) -> bool:
