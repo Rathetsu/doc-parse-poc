@@ -14,7 +14,7 @@ def create_app():
     app.config.from_object(Config)
 
     # Enable CORS for frontend communication
-    CORS(app, origins=["http://localhost:3000"])
+    CORS(app, origins=["http://localhost:3000", "https://*.vercel.app"])
 
     # Register blueprints
     app.register_blueprint(health_bp, url_prefix='/api')
